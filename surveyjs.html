@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My first SurveyJS survey</title>
+    <meta charset="utf-8">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/survey-jquery"></script>
+    <link href="https://unpkg.com/survey-jquery/survey.min.css" type="text/css" rel="stylesheet"/>
+	<script src="https://unpkg.com/knockout@3.5.1/build/output/knockout-latest.js"></script>
+     <script src="https://unpkg.com/survey-knockout@1.8.64/survey.ko.min.js"></script>
+</head>
+    <body>
+        <div id="surveyElement" style="display:inline-block;width:100%;"></div>
+        <div id="surveyResult"></div>
+       <script>
+	   
+	$(document).ready(function(){
+		$.ajax({
+			url: "https://apim.quickwork.co/ayyub/interview/v1/fetchhobbies?apikey=m8bFhVGWZxPG97IZzkLLpUCPNkfPEZQC",
+			success: function(data){
+				let hobbies = data.hobbies;
+			}
+		});
+	
+  
+   Survey
+    .StylesManager
+    .applyTheme("bootstrap");
+Survey.defaultBootstrapCss.navigationButton = "btn btn-green";
+
+var json = {
+    elements: [
+        {
+            name: "name",
+            type: "text",
+            title: "Please enter your name:",
+            placeHolder: "Your Name",
+            isRequired: true,
+			validators: [{
+					type: "expression",
+                    expression: "{name.length}>2",
+                    text: "Your Name should contain more than 2 characters"
+				}
+			]
+        }, {
+            name: "email",
+            type: "text",
+            inputType: "email",
+            title: "Your E-mail Address",
+            placeHolder: "example@gmail.com",
+            isRequired: true,
+            autoComplete: "email",
+            validators: [
+                {
+                    type: "email"
+                }
+            ]
+        },  {
+			name: "gender",
+			type: "radiogroup",
+			title: "Your Gender",
+			isRequired: true,
+			colCount: 3,
+			choices: [
+				"Male",
+				"Female",
+				"Other"
+			]
+			
+		}, {
+			name: "hobby",
+			type: "dropdown",
+			title: "Select a Hobby",
+			isRequired: true,
+			choicesByUrl: {
+				url: "https://apim.quickwork.co/ayyub/interview/v1/fetchhobbies?apikey=m8bFhVGWZxPG97IZzkLLpUCPNkfPEZQC",
+				path: "hobbies"
+			}
+		
+		
+		}, {
+		
+			name: "hobbySubCategory",
+			type: "dropdown",
+			title: "Select the Sub Hobby",
+			isRequired: true,
+			visibleIf: "{hobby}!=''",
+			choices: [
+			{value: 'Philosophical', visibleIf: '{hobby}="Reading"'},
+			{value: 'Fictional', visibleIf: '{hobby}="Reading"'},
+			{value: 'News', visibleIf: '{hobby}="Reading"'},
+			{value: 'Comics', visibleIf: '{hobby}="Writing"'},
+			{value: 'Blog', visibleIf: '{hobby}="Writing"'},
+			{value: 'Novel', visibleIf: '{hobby}="Writing"'},
+			{value: 'Offline Chess', visibleIf: '{hobby}="Playing Chess"'},
+			{value: 'Online Chess', visibleIf: '{hobby}="Playing Chess"'}
+			],
+		}
+    ]
+};
+
+
+var survey = new Survey.Model(json);
+
+survey
+    .onComplete
+    .add(function (sender) {
+        $.ajax({
+			url: "https://apim.quickwork.co/ayyub/interview/v1/submitdata?apikey=m8bFhVGWZxPG97IZzkLLpUCPNkfPEZQC",
+			data: JSON.stringify(sender),
+			type: 'POST',
+			processData: false,
+			contentType: 'application/json',
+			beforeSend: function(){
+			$("#surveyResult").html('<div class="spinner-border"></div>');
+			},
+			success: function(data){
+				$("#surveyResult").html(data.message);
+			}
+		});
+    });
+
+$("#surveyElement").Survey({model: survey});
+})
+	   </script>
+    </body>
+</html>
