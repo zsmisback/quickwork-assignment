@@ -16,14 +16,7 @@
        <script>
 	   
 	$(document).ready(function(){
-		$.ajax({
-			url: "https://apim.quickwork.co/ayyub/interview/v1/fetchhobbies?apikey=m8bFhVGWZxPG97IZzkLLpUCPNkfPEZQC",
-			success: function(data){
-				let hobbies = data.hobbies;
-			}
-		});
 	
-  
    Survey
     .StylesManager
     .applyTheme("bootstrap");
@@ -122,7 +115,8 @@ survey
     });
 
 $("#surveyElement").Survey({model: survey});
-})
+
+});
 	   </script>
     </body>
 </html>
